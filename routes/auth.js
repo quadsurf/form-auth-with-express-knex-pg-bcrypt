@@ -18,7 +18,7 @@ router.post('/signup', function(req, res, next) {
         res.redirect('/loggedin.html');
       });
     } else {
-      res.status(407);
+      res.status(409);
       res.redirect('/login.html?error=You have already signed up. Please login.');
     }
   });
