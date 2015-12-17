@@ -22,6 +22,7 @@
       <h1>Login</h1>
     </div>
     <div class="container">
+      <div class="alert alert-danger" role="alert" id="error" style="display:none"></div>
       <form action="/auth/login" method="post">
         <div class="form-group">
           <label for="email">Email</label>
@@ -39,5 +40,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+      if(window.location.search) {
+        var error = decodeURIComponent(window.location.search.split('=')[1]);
+        $('#error').show().text(error);
+      }
+    </script>
   </body>
 </html>

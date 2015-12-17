@@ -19,7 +19,7 @@ router.post('/signup', function(req, res, next) {
       });
     } else {
       res.status(407);
-      res.redirect('/login.html');
+      res.redirect('/login.html?error=You have already signed up. Please login.');
     }
   });
 });
@@ -34,11 +34,10 @@ router.post('/login', function(req, res, next){
         res.cookie('userID', user.id, { signed: true });
         res.redirect('/loggedin.html');
       } else {
-        res.redirect('/login.html');
+        res.redirect('/login.html?error=Invalid Email or Password.');
       }
     } else {
-      console.log('user does not exist');
-      res.redirect('/signup.html');
+      res.redirect('/signup.html?error=No user with that email.');
     }
   });
 });

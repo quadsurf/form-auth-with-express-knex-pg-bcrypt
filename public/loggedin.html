@@ -39,10 +39,10 @@
             $('#name').text(user.email);
           });
         } else {
-          window.location = '/login.html';
+          window.location = '/login.html?error=Not logged in';
         }
       } catch (e) {
-        window.location = '/login.html';
+        window.location = '/login.html?error=Not logged in';
       }
     </script>
   </body>
