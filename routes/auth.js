@@ -15,7 +15,7 @@ router.post('/signup', function(req, res, next) {
         password: hash
       }, 'id').then(function(id) {
         res.cookie('userID', id[0], { signed: true });
-        res.redirect('/loggedin.html');
+        res.redirect('/loggedin.html?userID=' + id[0]);
       });
     } else {
       res.status(409);
@@ -32,7 +32,7 @@ router.post('/login', function(req, res, next){
       //bcrypt.compareSync will hash the plain text password and compare
       if(bcrypt.compareSync(req.body.password, user.password)) {
         res.cookie('userID', user.id, { signed: true });
-        res.redirect('/loggedin.html');
+        res.redirect('/loggedin.html?userID=' + user.id);
       } else {
         res.redirect('/login.html?error=Invalid Email or Password.');
       }

@@ -19,9 +19,11 @@
   </head>
   <body>
     <div class="page-header">
-      <h1>Hello <span id="name"></span></h1>
+      <h1 id="header">Hello <span id="name"></span></h1>
+      <div class="alert alert-danger" role="alert" id="error" style="display:none">You are not allowed to view this page.</div>
     </div>
     <div class="container">
+      <a class="btn btn-default" id="back" href="/loggedin.html?userID=" style="display:none">Go Back</a>
       <a class="btn btn-default" href="/auth/logout">Log Out</a>
     </div>
 
@@ -29,20 +31,26 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+    <script src="js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
       console.log(document.cookie);
       try {
-        var id = document.cookie.split('s%3A')[1].split('.')[0];
+        var id = getParamValue('userID');
         if(id) {
           $.get('/users/' + id).done(function(user){
             $('#name').text(user.email);
+          }).fail(function(error){
+            var $back = $("#back");
+            $back.attr('href', $back.attr('href') + getUserID())
+            $back.show();
+            $("#error").show();
+            $("#header").hide();
           });
         } else {
-          window.location = '/login.html?error=Not logged in';
+          //window.location = '/login.html?error=Not logged in';
         }
       } catch (e) {
-        window.location = '/login.html?error=Not logged in';
+        //window.location = '/login.html?error=Not logged in';
       }
     </script>
   </body>
