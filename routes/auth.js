@@ -37,7 +37,7 @@ router.post('/login', function(req, res, next){
         res.redirect('/login.html?error=Invalid Email or Password.');
       }
     } else {
-      res.redirect('/signup.html?error=No user with that email.');
+      res.redirect('/signup.html?error=Invalid Email or Password.');
     }
   });
 });
