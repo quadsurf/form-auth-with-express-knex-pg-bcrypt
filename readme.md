@@ -1,10 +1,11 @@
-# READ THIS README PLEASE
+# Form-based authentication with `express`, `knex`, `postgres`, `bcrypt`
 
-# Form-base authentication with express, knex, postgres, bcrypt
+Application Setup 
+--
 
 To run the app:
 
-Create a .env file with a random cookie secret:
+1. Create a .env file with a random cookie secret:
 
 ```sh
 $ echo SECRET=$(node -e "require('crypto').randomBytes(48, function(ex, buf) { console.log(buf.toString('hex')) });") >> .env
@@ -16,20 +17,20 @@ Line 20 of app.js will use this secret to initialize the cookie-parser
 app.use(cookieParser(process.env.SECRET));
 ```
 
-Install dependencies and create database:
+2. Install dependencies and create database:
 
 ```sh
 $ npm install
 $ createdb myapp
 ```
 
-Run the knex migration (located in the migrations folder) to create the tables on the database:
+3. Run the knex migration (located in the migrations folder) to create the tables on the database:
 
 ```sh
 $ knex migrate:latest
 ```
 
-Start the app:
+4. Start the app:
 
 ```sh
 $ npm start
@@ -41,6 +42,9 @@ The app is hosted on port 3000:
 [http://localhost:3000/](http://localhost:3000/)
 
 <hr>
+
+Tour
+--
 
 # Routes
 
