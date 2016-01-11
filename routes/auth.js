@@ -55,7 +55,7 @@ router.post('/signup', function(req, res, next) {
         res.json({id: id[0]})
       });
     } else {
-      next('Email is in use');
+      next(new Error('Email is in use'));
     }
   });
 });2

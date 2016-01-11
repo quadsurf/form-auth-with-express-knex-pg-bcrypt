@@ -50,7 +50,8 @@
         }).done(function(result) {
           window.location = '/login.html';
         }).fail(function(error) {
-          showError(error.responseJSON.error);
+          console.log(error);
+          showError(error.responseJSON.message);
         });
       });
     </script>

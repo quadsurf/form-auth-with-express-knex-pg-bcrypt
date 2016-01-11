@@ -52,7 +52,7 @@
           window.location = '/loggedin.html?userID=' + result.id;
         }).fail(function(error) {
           console.log(error);
-          showError(error.responseJSON.error);
+          showError(error.responseJSON.message);
         });
       });
     </script>
