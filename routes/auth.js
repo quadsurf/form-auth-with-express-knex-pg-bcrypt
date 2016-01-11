@@ -18,7 +18,7 @@ passport.use(new LocalStrategy({
       if(user && bcrypt.compareSync(password, user.password)) {
         return done(null, user);
       } else {
-        return done(null, false, { message: 'Invalid Email or Password' });
+        return done(null, false, 'Invalid Email or Password');
       }
     }).catch(function(error){
       return done(error);
@@ -76,7 +76,7 @@ router.post('/login', function(req, res, next){
         }
       });
     } else if (info) {
-      next(info);
+      next(new Error(info));
     }
   })(req, res, next);
 });
