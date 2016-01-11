@@ -23,16 +23,16 @@
     </div>
     <div class="container">
       <div class="alert alert-danger" role="alert" id="error" style="display:none"></div>
-      <form class="form" action="/auth/signup" method="post">
+      <form class="form">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="text" class="form-control" name="email" value="">
+          <input type="text" class="form-control" name="email" value="" id="email">
         </div>
         <div class="form-group">
           <label for="email">Password</label>
-          <input type="password" class="form-control" name="password" value="">
+          <input type="password" class="form-control" name="password" value="" id="password">
         </div>
-        <button class="btn btn-primary" type="submit" name="button">Sign Up</button>
+        <a class="btn btn-primary" name="button" id="signup">Sign Up</a>
       </form>
     </div>
 
@@ -43,6 +43,16 @@
     <script src="js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
       showError();
+      $('#signup').click(function(){
+        $.post('http://localhost:3000/auth/signup', {
+          email: $('#email').val(),
+          password: $('#password').val()
+        }).done(function(result) {
+          window.location = '/login.html';
+        }).fail(function(error) {
+          showError(error.responseJSON.error);
+        });
+      });
     </script>
   </body>
 </html>

@@ -21,7 +21,7 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/:id', function(req, res){
-  console.log(req.user);
+  console.log('user', req.user);
   if(req.user && req.user.id == req.params.id) {
     delete req.user.password;
     res.json(req.user);

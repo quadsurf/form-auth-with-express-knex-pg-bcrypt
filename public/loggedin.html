@@ -33,16 +33,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
-      console.log(document.cookie);
       try {
         var id = getParamValue('userID');
         if(id) {
-          $.get('/users/' + id).done(function(user){
+          $.get('http://localhost:3000/users/' + id).done(function(user){
+            console.log(user);
             $('#name').text(user.email);
           }).fail(function(error){
+            console.log(error);
             var $back = $("#back");
-            $back.attr('href', $back.attr('href') + getUserID())
-            $back.show();
             $("#error").show();
             $("#header").hide();
           });

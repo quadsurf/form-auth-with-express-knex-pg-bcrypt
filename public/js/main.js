@@ -1,11 +1,8 @@
-function getUserID() {
-  try {
-    // extract value from signed cookie
-    return document.cookie.split('s%3A')[1].split('.')[0];
-  } catch (e) {
-    return '';
+$.ajaxSetup({
+  xhrFields: {
+       withCredentials: true
   }
-}
+});
 
 function getParamValue(name) {
   var params = window.location.search.substring(1).split('&').reduce(function(params, keyValue){
@@ -27,9 +24,12 @@ function getParamValue(name) {
   }
 }
 
-function showError() {
-  if(window.location.search) {
-    var error = getParamValue('error');
+function showError(error) {
+  if(!error && window.location.search) {
+    error = getParamValue('error');
+  }
+
+  if(error) {
     $('#error').show().text(error);
   }
 }

@@ -12,7 +12,7 @@ var Users = function() {
 passport.use(new LocalStrategy({
     usernameField: 'email'
   }, function(email, password, done) {
-    console.log('Loggin in...')
+    console.log('Logging in...')
     Users().where('email',email).first()
     .then(function(user){
       if(user && bcrypt.compareSync(password, user.password)) {
@@ -52,27 +52,33 @@ router.post('/signup', function(req, res, next) {
         email: req.body.email,
         password: hash
       }, 'id').then(function(id) {
-        res.cookie('userID', id[0], { signed: true });
-        res.redirect('/loggedin.html?userID=' + id[0]);
+        res.json({id: id[0]})
       });
     } else {
-      res.status(409);
-      res.redirect('/login.html?error=You have already signed up. Please login.');
+      next('Email is in use');
     }
   });
 });2
 
-router.post('/login',
-  passport.authenticate('local', {
-      failureRedirect: '/login',
-      failureFlash: true
-  }), function(req, res){
-    res.redirect('/loggedin.html?userID=' + req.user.id);
-  });
-
-router.get('/logout', function(req, res){
-  res.clearCookie('userID');
-  res.redirect('/');
+router.post('/login', function(req, res, next){
+  passport.authenticate('local',
+  function (err, user, info){
+    if(err) {
+      next(err);
+    } else if(user) {
+      req.logIn(user, function(err) {
+        if (err) {
+          next(err);
+        }
+        else {
+          delete user.password;
+          res.json(user);
+        }
+      });
+    } else if (info) {
+      next(info);
+    }
+  })(req, res, next);
 });
 
 module.exports = {
