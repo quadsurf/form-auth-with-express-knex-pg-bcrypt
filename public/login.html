@@ -44,7 +44,7 @@
     <script type="text/javascript">
       showError();
       $('#login').click(function(){
-        $.post('http://localhost:3000/auth/login', {
+        $.post('https://powerful-wave-3355.herokuapp.com/auth/login', {
           email: $('#email').val(),
           password: $('#password').val()
         }).done(function(result) {
