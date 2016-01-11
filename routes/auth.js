@@ -76,7 +76,7 @@ router.post('/login', function(req, res, next){
         }
       });
     } else if (info) {
-      next(new Error(info));
+      next(info);
     }
   })(req, res, next);
 });
