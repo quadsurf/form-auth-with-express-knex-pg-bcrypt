@@ -4,6 +4,14 @@ $.ajaxSetup({
   }
 });
 
+function getAPIHost() {
+  if(window.location.hostname == 'localhost') {
+    return "http://localhost:3000";
+  } else {
+    return "https://powerful-wave-3355.herokuapp.com"
+  }
+}
+
 function getParamValue(name) {
   var params = window.location.search.substring(1).split('&').reduce(function(params, keyValue){
     var splits = keyValue.split('=');

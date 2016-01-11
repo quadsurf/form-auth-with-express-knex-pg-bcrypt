@@ -36,7 +36,7 @@
       try {
         var id = getParamValue('userID');
         if(id) {
-          $.get('https://powerful-wave-3355.herokuapp.com/users/' + id).done(function(user){
+          $.get(getAPIHost() + '/users/' + id).done(function(user){
             console.log(user);
             $('#name').text(user.email);
           }).fail(function(error){
