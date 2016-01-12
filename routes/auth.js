@@ -10,6 +10,10 @@ var Users = function() {
   return knex('users');
 }
 
+var GoogleUsers = function() {
+  return knex('google_users')
+}
+
 require('dotenv').load();
 
 passport.use(new LocalStrategy({
@@ -18,7 +22,7 @@ passport.use(new LocalStrategy({
     console.log('Logging in...')
     Users().where('email',email).first()
     .then(function(user){
-      if(user && bcrypt.compareSync(password, user.password)) {
+      if(user && user.password !== null && bcrypt.compareSync(password, user.password)) {
         return done(null, user);
       } else {
         return done(null, false, 'Invalid Email or Password');
@@ -34,12 +38,51 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.HOST + '/auth/google/callback'
   },
   function(accessToken, refreshToken, profile, done) {
-    console.log('accessToken', accessToken);
-    console.log('refreshToken', refreshToken);
-    console.log('profile', profile);
-    // User.findOrCreate({ googleId: profile.id }, function (err, user) {
-    //   return done(err, user);
-    // });
+    // table.integer('user_id').unsigned().references('id').inTable('users').onDelete('cascade');
+    var google_user = {
+      displayName: profile.displayName,
+      accessToken: accessToken,
+      google_id: profile.id,
+      photo: profile.photos[0].value
+    }
+
+    var email = profile.emails[0].value;
+
+    Users().where('email', email).first()
+    .then(function(user) {
+      if(user) {
+        Users().where('email', email).update({
+          google: true
+        }).then(function(){
+          GoogleUsers().where('google_id', google_user.google_id).first()
+          .then(function(dbUser){
+            if(dbUser) {
+                google_user.user_id = user.id;
+                GoogleUsers().where('google_id', google_user.google_id)
+                .update(google_user).then(function(){
+                  return done(null, user);
+                });
+            } else {
+              google_user.user_id = user.id;
+              GoogleUsers().insert(google_user).then(function(){
+                return done(null, user);
+              });
+            }
+          });
+        });
+      } else {
+        Users().insert({
+          email: email,
+          password: null,
+          google: true
+        }, 'id').then(function(id) {
+          google_user.user_id = id[0];
+          GoogleUsers().insert(google_user).then(function(){
+            return done(null, user);
+          });
+        });
+      }
+    });
   }
 ));
 
@@ -103,7 +146,7 @@ router.get('/google',
   passport.authenticate('google', { scope: 'email https://www.googleapis.com/auth/plus.login' }));
 
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', { failureRedirect: '/failure' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
