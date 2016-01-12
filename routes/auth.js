@@ -21,8 +21,10 @@ passport.use(new LocalStrategy({
     console.log('Logging in...')
     Users().where('email',email).first()
     .then(function(user){
-      if(user && bcrypt.compareSync(password, user.password)) {
+      if(user && user.password !== null &&  bcrypt.compareSync(password, user.password)) {
         return done(null, user);
+      } else if (user && user.password == null){
+        return done(new Error('Please login with Google'));
       } else {
         return done(null, false, 'Invalid Email or Password');
       }
@@ -121,6 +123,10 @@ function createUser(email, password) {
 }
 
 router.post('/signup', function(req, res, next) {
+  if(req.body.password == null) {
+    return next(new Error('Please login with Google'));
+  }
+
   findUserByEmail(req.body.email).then(function(user){
     if(!user) {
       createUser(req.body.email, req.body.password).then(function(id){
@@ -129,7 +135,11 @@ router.post('/signup', function(req, res, next) {
         next(err);
       });;
     } else {
-      next(new Error('Email is in use'));
+      if(user.password == null) {
+        return next(new Error('Please login with Google'));
+      } else {
+        return next(new Error('Email is in use'));
+      }
     }
   }).catch(function(err){
     next(err);
