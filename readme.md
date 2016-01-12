@@ -1,21 +1,17 @@
 # Form-based authentication with `express`, `knex`, `postgres`, `bcrypt`
 
-Application Setup 
+Application Setup
 --
 
 To run the app:
 
-1. Create a .env file with a random cookie secret:
+1. Create a .env file with a random token secret:
 
 ```sh
-$ echo SECRET=$(node -e "require('crypto').randomBytes(48, function(ex, buf) { console.log(buf.toString('hex')) });") >> .env
+$ echo TOKEN_SECRET=$(node -e "require('crypto').randomBytes(48, function(ex, buf) { console.log(buf.toString('hex')) });") >> .env
 ```
 
-Line 20 of app.js will use this secret to initialize the cookie-parser
-
-```js
-app.use(cookieParser(process.env.SECRET));
-```
+auth.js will use this secret to sign the issued token
 
 2. Install dependencies and create database:
 
