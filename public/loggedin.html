@@ -24,7 +24,7 @@
     </div>
     <div class="container">
       <a class="btn btn-default" id="back" href="/loggedin.html?userID=" style="display:none">Go Back</a>
-      <a class="btn btn-default" href="/auth/logout">Log Out</a>
+      <a class="btn btn-default" href="#" id="logOut">Log Out</a>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -33,6 +33,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
+      $('#logOut').attr('href', getAPIHost() + '/auth/logout')
       try {
         var id = getParamValue('userID');
         if(id) {

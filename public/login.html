@@ -33,6 +33,7 @@
           <input type="password" class="form-control" name="password" value="" id="password">
         </div>
         <a class="btn btn-primary" href="#" name="button" id="login">Log In</a>
+        <a class="btn btn-warning" href="#" name="button" id="google">Log In With Google</a>
       </form>
     </div>
 
@@ -43,6 +44,7 @@
     <script src="js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
       showError();
+      $('#google').attr('href', getAPIHost() + '/auth/google');
       $('#login').click(function(){
         $.post(getAPIHost() + '/auth/login', {
           email: $('#email').val(),
@@ -52,7 +54,7 @@
           window.location = '/loggedin.html?userID=' + result.id;
         }).fail(function(error) {
           console.log(error);
-          showError(error.responseJSON.message);
+          showError(error.responseJSON.message || error.responseJSON.error);
         });
       });
     </script>

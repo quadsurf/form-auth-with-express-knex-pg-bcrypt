@@ -51,7 +51,7 @@
           window.location = '/login.html';
         }).fail(function(error) {
           console.log(error);
-          showError(error.responseJSON.message);
+          showError(error.responseJSON.message || error.responseJSON.error);
         });
       });
     </script>
