@@ -4,6 +4,7 @@ var knex = require('../db/knex')
 var bcrypt = require('bcrypt');
 var jwt = require('jsonwebtoken');
 var passport = require('passport');
+var validator = require('validator');
 
 var LocalStrategy = require('passport-local').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
@@ -76,15 +77,6 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-//
-// passport.serializeUser(function(user, done) {
-//   done(null, user);
-// });
-//
-// passport.deserializeUser(function(user, done) {
-//   done(null, user);
-// });
-
 function findUserByID(id) {
   return Users().where('id', id).first()
   .then(function(user){
@@ -111,6 +103,9 @@ function findUserByEmail(email) {
 }
 
 function createUser(email, password) {
+  if(!validator.isEmail(email)) return Promise.reject('Invalid email');
+  if(password == '') return Promise.reject('Password cannot be blank');
+
   var hash = !password ? null : bcrypt.hashSync(password, 8);
   return Users().insert({
     email: email,
@@ -123,28 +118,24 @@ function createUser(email, password) {
 }
 
 router.post('/signup', function(req, res, next) {
-  if(req.body.password == null) {
-    return next(new Error('Please login with Google'));
-  }
-
   findUserByEmail(req.body.email).then(function(user){
-    if(!user) {
+    if(user.password == null) {
+      next(new Error('Please login with google'));
+    } else {
+      next(new Error('Email is in use'));  
+    }
+  }).catch(function(err){
+    if(err == 'User not found.') {
       createUser(req.body.email, req.body.password).then(function(id){
         res.json({id: id})
       }).catch(function(err){
         next(err);
       });;
     } else {
-      if(user.password == null) {
-        return next(new Error('Please login with Google'));
-      } else {
-        return next(new Error('Email is in use'));
-      }
+      next(err);
     }
-  }).catch(function(err){
-    next(err);
   });
-});2
+});
 
 router.post('/login', function(req, res, next){
   passport.authenticate('local',
