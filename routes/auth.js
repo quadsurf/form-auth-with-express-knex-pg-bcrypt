@@ -3,6 +3,7 @@ var router = express.Router();
 var knex = require('../db/knex')
 var bcrypt = require('bcrypt');
 var passport = require('passport');
+var validator = require('validator');
 
 var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
@@ -103,6 +104,9 @@ function findUserByEmail(email) {
 }
 
 function createUser(email, password) {
+  if(!validator.isEmail(email)) return Promise.reject('Invalid email');
+  if(password == '') return Promise.reject('Password cannot be blank');
+
   var hash = !password ? null : bcrypt.hashSync(password, 8);
   return Users().insert({
     email: email,
