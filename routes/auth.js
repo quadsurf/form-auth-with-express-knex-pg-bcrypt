@@ -7,6 +7,7 @@ var passport = require('passport');
 
 var LocalStrategy = require('passport-local').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 require('dotenv').load();
 
@@ -37,32 +38,99 @@ passport.use(new BearerStrategy(function(token, done){
   });
 }));
 
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: process.env.HOST + '/auth/google/callback'
+  },
+  function(accessToken, refreshToken, profile, done) {
+    var email = profile.emails[0].value;
+    findUserByEmail(email).then(function(user) {
+      if(!user) {
+        console.log('Creating User...');
+        createUser(email).then(function(id) {
+          findUserByID(id).then(function(user) {
+            done(null, {
+              user: user,
+              accessToken: accessToken
+            });
+          });
+        });
+      } else {
+        console.log('Existing User...');
+        console.log(user);
+        done(null, {
+          user: user,
+          accessToken: accessToken
+        });
+      }
+    }).catch(function(err) {
+      console.log('Error...');
+      console.log(err);
+      done(err);
+    });
+  }
+));
+
+//
+// passport.serializeUser(function(user, done) {
+//   done(null, user);
+// });
+//
+// passport.deserializeUser(function(user, done) {
+//   done(null, user);
+// });
+
 function findUserByID(id) {
   return Users().where('id', id).first()
   .then(function(user){
       if(user) {
-        return Promise.resolve(user);
+        return user;
       } else {
         return Promise.reject('User not found.');
       }
-  }).catch(function(error){
-    return Promise.reject(error);
+  }).catch(function(err){
+    return Promise.reject(err);
+  });
+}
+
+function findUserByEmail(email) {
+  return Users().where('email', email).first().then(function(user){
+    if(user) {
+      return user;
+    } else {
+      return Promise.reject('User not found.');
+    }
+  }).catch(function(err) {
+    return Promise.reject(err);
+  });
+}
+
+function createUser(email, password) {
+  var hash = !password ? null : bcrypt.hashSync(password, 8);
+  return Users().insert({
+    email: email,
+    password: hash
+  }, 'id').then(function(id) {
+    return id[0];
+  }).catch(function(err) {
+    return Promise.reject(err);
   });
 }
 
 router.post('/signup', function(req, res, next) {
-  Users().where('email', req.body.email).first().then(function(user){
+  findUserByEmail(req.body.email).then(function(user){
     if(!user) {
-      var hash = bcrypt.hashSync(req.body.password, 8);
-      Users().insert({
-        email: req.body.email,
-        password: hash
-      }, 'id').then(function(id) {
-        res.json({id: id[0]})
-      });
+      createUser(req.body.email, req.body.password).then(function(id){
+        res.json({id: id})
+      }).catch(function(err){
+        next(err);
+      });;
     } else {
       next(new Error('Email is in use'));
     }
+  }).catch(function(err){
+    next(err);
   });
 });2
 
@@ -83,17 +151,33 @@ router.post('/login', function(req, res, next){
   })(req, res, next);
 });
 
-function createToken(user) {
+function createToken(user, accessToken) {
   return new Promise(function(resolve, reject){
-    jwt.sign({
+    delete user.password;
+    var data = {
       user: user
-    }, process.env.TOKEN_SECRET, {
-      expiresIn: '1d'
-    }, function(token) {
-      resolve(token);
-    });
+    }
+
+    if(accessToken) data.accessToken = accessToken;
+
+    jwt.sign(data, process.env.TOKEN_SECRET, { expiresIn: '1d' },
+      function(token) {
+        resolve(token);
+      });
   });
 }
+
+router.get('/google',
+  passport.authenticate('google', { scope: 'email' }));
+
+router.get('/google/callback', function(req, res, next) {
+  passport.authenticate('google', function(err, userAndToken){
+    console.log('user', userAndToken.user);
+    createToken(userAndToken.user, userAndToken.accessToken).then(function(token){
+      res.redirect(process.env.CLIENT_CALLBACK + '?token=' + token);
+    });
+  })(req, res, next);
+});
 
 module.exports = {
   router: router,
