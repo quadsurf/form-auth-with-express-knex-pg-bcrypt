@@ -2,8 +2,13 @@ var express = require('express');
 var router = express.Router();
 var knex = require('../db/knex')
 var bcrypt = require('bcrypt');
+var jwt = require('jsonwebtoken');
 var passport = require('passport');
+
 var LocalStrategy = require('passport-local').Strategy;
+var BearerStrategy = require('passport-http-bearer').Strategy;
+
+require('dotenv').load();
 
 var Users = function() {
   return knex('users');
@@ -25,24 +30,25 @@ passport.use(new LocalStrategy({
     });
 }));
 
-passport.serializeUser(function(user, done) {
-  console.log('Serializing user...');
-  done(null, user.id);
-});
+passport.use(new BearerStrategy(function(token, done){
+  jwt.verify(token, process.env.TOKEN_SECRET, function(err, decoded){
+    if (err) return done(err);
+    done(null, decoded.user);
+  });
+}));
 
-passport.deserializeUser(function(id, done) {
-  console.log('Deserializing user...');
-  Users().where('id', id).first()
+function findUserByID(id) {
+  return Users().where('id', id).first()
   .then(function(user){
       if(user) {
-        done(null, user);
+        return Promise.resolve(user);
       } else {
-        done('User not found.');
+        return Promise.reject('User not found.');
       }
   }).catch(function(error){
-    done(error);
+    return Promise.reject(error);
   });
-});
+}
 
 router.post('/signup', function(req, res, next) {
   Users().where('email', req.body.email).first().then(function(user){
@@ -63,25 +69,39 @@ router.post('/signup', function(req, res, next) {
 router.post('/login', function(req, res, next){
   passport.authenticate('local',
   function (err, user, info){
-    if(err) {
-      next(err);
-    } else if(user) {
-      req.logIn(user, function(err) {
-        if (err) {
-          next(err);
-        }
-        else {
-          delete user.password;
-          res.json(user);
-        }
+    if(err) return next(err);
+    if(user) {
+      delete user.password;
+      createToken(user).then(function(token) {
+        res.json({
+          token: token
+        });
       });
-    } else if (info) {
-      next(info);
+    } else {
+      next('Invalid Login');
     }
   })(req, res, next);
 });
 
+function createToken(user) {
+  return new Promise(function(resolve, reject){
+    jwt.sign({
+      user: user
+    }, process.env.TOKEN_SECRET, {
+      expiresIn: '1d'
+    }, function(token) {
+      resolve(token);
+    });
+  });
+}
+
 module.exports = {
   router: router,
-  passport: passport
+  passport: passport,
+  authenticate: function(req, res, next) {
+    passport.authenticate('bearer', function(err, user, info) {
+      req.user = user;
+      next();
+    })(req, res, next);
+  }
 };

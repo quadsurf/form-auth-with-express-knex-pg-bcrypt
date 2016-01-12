@@ -24,7 +24,7 @@
     </div>
     <div class="container">
       <a class="btn btn-default" id="back" href="/loggedin.html?userID=" style="display:none">Go Back</a>
-      <a class="btn btn-default" href="/auth/logout">Log Out</a>
+      <a class="btn btn-default" onclick="logOut();">Log Out</a>
     </div>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -36,17 +36,25 @@
       try {
         var id = getParamValue('userID');
         if(id) {
-          $.get('https://powerful-wave-3355.herokuapp.com/users/' + id).done(function(user){
+          $.get(getAPIHost() + '/users/' + id).done(function(user){
             console.log(user);
             $('#name').text(user.email);
           }).fail(function(error){
             console.log(error);
             var $back = $("#back");
+            $back.attr('href', $back.attr('href') + getUser().id);
+            $back.show();
             $("#error").show();
             $("#header").hide();
           });
         } else {
-          window.location = '/login.html?error=Not logged in';
+          var user = getUser();
+
+          if(user) {
+            window.location = '/loggedin.html?userID=' + user.id;
+          } else {
+            window.location = '/login.html?error=Not logged in';
+          }
         }
       } catch (e) {
         window.location = '/login.html?error=Not logged in';

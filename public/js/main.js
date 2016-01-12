@@ -1,8 +1,29 @@
-$.ajaxSetup({
-  xhrFields: {
-       withCredentials: true
+if(localStorage.token) {
+  $.ajaxSetup({
+    headers: {
+         Authorization: 'Bearer ' + localStorage.token
+    }
+  });
+}
+
+function getUser() {
+  if(localStorage.token) {
+    return JSON.parse(atob(localStorage.token.split('.')[1])).user;
   }
-});
+}
+
+function logOut() {
+  localStorage.token = '';
+  window.location = '/index.html';
+}
+
+function getAPIHost() {
+  if(window.location.hostname == 'localhost') {
+    return 'http://localhost:3000';
+  } else {
+    return 'https://powerful-wave-3355.herokuapp.com';
+  }
+}
 
 function getParamValue(name) {
   var params = window.location.search.substring(1).split('&').reduce(function(params, keyValue){

@@ -44,15 +44,16 @@
     <script type="text/javascript">
       showError();
       $('#login').click(function(){
-        $.post('https://powerful-wave-3355.herokuapp.com/auth/login', {
+        $.post(getAPIHost() + '/auth/login', {
           email: $('#email').val(),
           password: $('#password').val()
         }).done(function(result) {
           console.log(result);
-          window.location = '/loggedin.html?userID=' + result.id;
+          localStorage.token = result.token;
+          window.location = '/loggedin.html?userID=' + getUser().id;
         }).fail(function(error) {
           console.log(error);
-          showError(error.responseJSON.message);
+          showError(error.responseJSON.message || error.responseJSON.error);
         });
       });
     </script>

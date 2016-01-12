@@ -27,16 +27,11 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    <script src="js/main.js" charset="utf-8"></script>
+    <script src="/js/main.js" charset="utf-8"></script>
     <script type="text/javascript">
-      console.log(document.cookie);
-      try {
-        var id = getUserID();
-        if(id) {
-          window.location = '/loggedin.html?userID=' + id;
-        }
-      } catch (e) {
-        console.log('not logged in');
+      var user = getUser();
+      if(user) {
+        window.location.href = '/loggedin.html?userID=' + user.id;
       }
     </script>
   </body>

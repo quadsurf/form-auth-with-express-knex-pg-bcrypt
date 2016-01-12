@@ -16,13 +16,17 @@ require('dotenv').load();
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
   res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Headers', 'Authorization');
   next();
 });
 
 app.use(auth.passport.initialize());
+
+app.use(auth.authenticate);
 
 app.use('/auth', auth.router);
 app.use('/users', users);
