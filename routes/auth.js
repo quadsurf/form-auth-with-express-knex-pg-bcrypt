@@ -46,28 +46,30 @@ passport.use(new GoogleStrategy({
   function(accessToken, refreshToken, profile, done) {
     var email = profile.emails[0].value;
     findUserByEmail(email).then(function(user) {
-      if(!user) {
+      console.log('Existing User...');
+      console.log(user);
+      done(null, {
+        user: user,
+        accessToken: accessToken
+      });
+    }).catch(function(err) {
+      if(err == 'User not found.') {
         console.log('Creating User...');
         createUser(email).then(function(id) {
-          findUserByID(id).then(function(user) {
-            done(null, {
-              user: user,
-              accessToken: accessToken
-            });
+          return id;
+        }).then(function(id){
+          return findUserByID(id);
+        }).then(function(user){
+          done(null, {
+            user: user,
+            accessToken: accessToken
           });
         });
       } else {
-        console.log('Existing User...');
-        console.log(user);
-        done(null, {
-          user: user,
-          accessToken: accessToken
-        });
+        console.log('Error...');
+        console.log(err);
+        done(err);
       }
-    }).catch(function(err) {
-      console.log('Error...');
-      console.log(err);
-      done(err);
     });
   }
 ));
