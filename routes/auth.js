@@ -119,7 +119,7 @@ function createUser(user) {
   }
 
   return Users().insert(user, 'id').then(function(id) {
-    user.id = id;
+    user.id = id[0];
     return user;
   }).catch(function(err) {
     return Promise.reject(err);
