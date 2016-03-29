@@ -1,6 +1,6 @@
 # Form-based authentication with `express`, `knex`, `postgres`, `bcrypt`
 
-Application Setup 
+Application Setup
 --
 
 To run the app:
@@ -21,7 +21,7 @@ app.use(cookieParser(process.env.SECRET));
 
 ```sh
 $ npm install
-$ createdb myapp
+$ createdb galvanize-form-auth-with-express-knex-pg-bcrypt
 ```
 
 3. Run the knex migration (located in the migrations folder) to create the tables on the database:

@@ -1,43 +1,40 @@
-var express = require('express');
-var router = express.Router();
-var knex = require('../db/knex');
+'use strict';
+const express = require('express');
+const router = express.Router();
+const knex = require('../db/knex');
+const bcrypt = require('bcrypt');
+const flash = require('flash');
+const Users = function() {
+    return knex('users');
+};
 
-var Users = function () {
-  return knex('users');
+// authorizedUser route
+function authorizedUser(req, res, next) {
+  let user_id = req.signedCookies.userID;
+  if (user_id) {
+      next();
+  } else {
+    req.flash('error', 'You are not authorized.');
+    res.status(401).redirect('/');
+  }
 }
 
-router.get('/', function(req, res, next) {
-  if(req.signedCookies.userID) {
-    Users().select().then(function(users){
-      for (var i = 0; i < users.length; i++) {
-        delete users[i]['password'];
-      }
-      res.json(users);
-    })
-  } else {
-    res.status(401);
-    res.json({ message: 'not allowed' })
-  }
+router.get('/login', function(req, res, next){
+  res.render('login');
 });
 
-router.get('/:id', function(req, res){
-  if(req.signedCookies.userID === req.params.id) {
-    Users().where('id', req.params.id).first().then(function(user){
-      if(user) {
-        delete user.password;
-        res.json(user);
-      } else {
-        res.status(404);
-        res.json({ message: 'not found' });
-      }
-    }).catch(function(error){
-      res.status(404);
-      res.json({ message: error.message });
-    })
-  } else {
-    res.status(401);
-    res.json({ message: 'not allowed' });
-  }
-})
+router.get('/signup', function(req, res, next){
+  res.render('signup');
+});
+
+router.get('/:id', authorizedUser, function(req, res, next){
+  Users().where('id', req.params.id).first().then(function(user){
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(401).json({ message: 'User does not exist.' });
+    }
+  });
+});
 
 module.exports = router;
