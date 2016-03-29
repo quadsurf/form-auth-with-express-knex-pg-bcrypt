@@ -14,13 +14,13 @@ router.post('/signup', function(req, res, next) {
     }).first().then(function(user) {
         if (!user) {
             let hash = bcrypt.hashSync(req.body.password, 8);
-            console.log(hash, req.body.email);
             Users().insert({
                 email: req.body.email,
                 password: hash
+            }).then(function(){
+              req.flash('info', 'Thanks for signing up.');
+              res.redirect('/');
             });
-            req.flash('info', 'Thanks for signing up.');
-            res.redirect('/');
         } else {
             req.flash('error', 'You already have an account with us.');
             res.redirect('/users/login');

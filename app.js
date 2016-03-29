@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
     secret: process.env.SECRET,
     name: 'APP-NAME',
-    proxy: true,
+    // proxy: true,
     resave: true,
     saveUninitialized: true
 }));
