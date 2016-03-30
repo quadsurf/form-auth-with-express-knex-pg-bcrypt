@@ -116,9 +116,11 @@ Implement the following features:
 
 ## Update: Plot Twist:
 Oh snap, the last commit was wacky. Issues, with PW salting. Oh no...
-  Fixes:
+
+  #### Fixes:
+
     - Route status changes
     - bcrypt pw hashing updated
     - database migration added
 
-Remember to run migrations. Also you're going to have merge conflicts 😄. You need to fix that. Another thing, users in your db probably wont auth any more so you'll need to delete all rows and re-seed.  
+Remember to run migrations. Also you're going to have merge conflicts 😄. You need to fix that. Another thing, users in your db probably wont auth anymore so you'll need to delete all rows and re-seed.  
