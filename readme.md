@@ -87,14 +87,15 @@ Notice how each user gets a random salt. This technique is used to enhance secur
 # Job Spec / Assignment
 Implement the following features:
 
-0. We need `regular` users and `admin` users.
+1. We need `regular` users and `admin` users.
   - Update the `knex > db/migration` to include a column called `admin`, which is a boolean and defaults to `false`.
   - The `signup` view needs to have an radio input for selecting if the user signing up is an admin or not, it should default to `false`.
-1. Only logged in users of type `admin` are allowed to list all users. [Route `/users`] this route should return as `json`.
-2. A logged in `regular` user can only request their own user id. [Route `/users/:id`] this route should return as `json`.
+2. Only logged in users of type `admin` are allowed to list all users. [Route `/users`] this route should return as `json`.
+3. A logged in `regular` user can only request their own user id. [Route `/users/:id`] this route should return as `json`.
   - If they try to request another user's id, they should be informed they are not an `admin` and this route should return as `json`.
-3. An `admin` user can delete a user [Route `/users/:id`]
+4. An `admin` user can delete a user [Route `/users/:id`]
   - Create a `delete` route for `admin` and this route should return as `json`.
   - `admin` view in `loggedin`: For admins only, the `loggedin` view will list all users in the `users` table in the view. Each row should have a delete button for removing that specific user.
   - An `admin` can only delete `regular` users. An `admin` cannot delete another `admin`.
-4. Create a `knex` migration to seed your database with 100 random users of type `admin` and `regular`.
+5. Create a `knex` migration to seed your database with 100 random users of type `admin` and `regular`.
+6. Think of this APP as a simple user management APP and `style` it. Make it pretty. 💚  
