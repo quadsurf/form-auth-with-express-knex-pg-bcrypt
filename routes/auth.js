@@ -4,19 +4,19 @@ const router = express.Router();
 const knex = require('../db/knex');
 const bcrypt = require('bcrypt');
 const flash = require('flash');
-const Users = function() {
-    return knex('users');
-};
+const Users = function() { return knex('users') };
 
 router.post('/signup', function(req, res, next) {
     Users().where({
         email: req.body.email
     }).first().then(function(user) {
+        let salt = bcrypt.genSaltSync(10);
         if (!user) {
-            let hash = bcrypt.hashSync(req.body.password, 8);
+            let hash = bcrypt.hashSync(req.body.password, salt);
             Users().insert({
                 email: req.body.email,
-                password: hash
+                password: hash,
+                salt: salt
             }).then(function(){
               req.flash('info', 'Thanks for signing up.');
               res.redirect('/');
@@ -32,8 +32,8 @@ router.post('/login', function(req, res, next) {
     Users().where({
         email: req.body.email,
     }).first().then(function(user) {
-        //bcrypt.compareSync will hash the plain text password and compare
-        if (user && bcrypt.compareSync(req.body.password, user.password)) {
+        let hashed_pw = bcrypt.hashSync(req.body.password, user.salt);
+        if (user && bcrypt.compareSync(req.body.password, hashed_pw)) {
             res.cookie('userID', user.id, {
                 signed: true
             });

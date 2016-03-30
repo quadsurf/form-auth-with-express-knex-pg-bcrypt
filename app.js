@@ -7,9 +7,7 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const knex = require('./db/knex');
 const session = require('express-session');
-const Users = function() {
-        return knex('users');
-    };
+const Users = function() { return knex('users') };
 
 // routes
 const auth = require('./routes/auth');
@@ -24,22 +22,21 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-app.use(cookieParser(process.env.SECRET));
+// app.use(cookieParser(process.env.SECRET));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // flash message middleware
 app.use(session({
     secret: process.env.SECRET,
-    name: 'APP-NAME',
-    // proxy: true,
+    name: 'SIMPLEAPP__',
     resave: true,
     saveUninitialized: true
 }));
 app.use(require('flash')());
 app.use(function(req, res, next) {
-    res.clearCookie('APP-NAME');
+    res.clearCookie('SIMPLEAPP__');
     next();
-})
+});
 
 // main route
 app.get('/', function(req, res, next) {

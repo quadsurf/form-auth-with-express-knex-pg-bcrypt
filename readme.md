@@ -5,59 +5,55 @@ Application Setup
 
 To run the app:
 
-1. Create a .env file with a random cookie secret:
+1. Create a `.env` file with a random cookie secret:
 
 ```sh
-$ echo SECRET=$(node -e "require('crypto').randomBytes(48, function(ex, buf) { console.log(buf.toString('hex')) });") >> .env
+echo SECRET=$(node -e "require('crypto').randomBytes(48, function(ex, buf) { console.log(buf.toString('hex')) });") >> .env
 ```
 
-Line 20 of app.js will use this secret to initialize the cookie-parser
+2. This secret code is used in `app.js` by the cookie-parser module. Uncomment the following line in `app.js` should be around line 27.
 
 ```js
 app.use(cookieParser(process.env.SECRET));
 ```
 
-2. Install dependencies and create database:
+3. Install `npm` dependencies and create the `psql` database:
 
 ```sh
-$ npm install
-$ createdb galvanize-form-auth-with-express-knex-pg-bcrypt
+npm install
+createdb galvanize-form-auth-with-express-knex-pg-bcrypt
 ```
 
-3. Run the knex migration (located in the migrations folder) to create the tables on the database:
+4. Run the `knex` migration (located in the migrations folder) to create the tables on the database:
 
 ```sh
-$ knex migrate:latest
+knex migrate:latest
 ```
 
 4. Start the app:
 
 ```sh
-$ npm start
+npm start
 ```
 
-The app is hosted on port 3000:
-
-
-[http://localhost:3000/](http://localhost:3000/)
+The app is hosted on port 3000: [http://localhost:3000/](http://localhost:3000/)
 
 <hr>
 
-Tour
---
+# App Walk-through
 
-# Routes
+## Routes
 
-Line 23 of app.js defines the routes in our application.
+`app.js` defines the routes in our application.
 
 ```js
 app.use('/auth', auth);
 app.use('/users', users);
 ```
 
-## Auth
+### Auth
 
-The auth routes file (./routes/auth.js) contains the following routes:
+The auth routes file (`./routes/auth.js`) contains the following routes:
 
 ```js
 POST signup
@@ -65,48 +61,40 @@ POST signin
 GET logout
 ```
 
-## Users
+### Users
 
-The users routes file (./routes/users.js) contains the following routes:
+The users routes file (`./routes/users.js`) contains the following routes:
 
 ```js
-GET users (lists users)
-GET users/:id (gets a single user)
+GET /users (lists users)
+GET /users/:id (gets a single user)
 ```
 
-Only logged in users are allowed to list users.
+<br>
 
-A logged in user can only request their own user id.
+## Unique User Salts
+Notice how each user gets a random salt. This technique is used to enhance security.
 
-After logging in, try to make a request for another users id.
+```table
+   id |         email         |                           password                           |             salt
+  ----+-----------------------+--------------------------------------------------------------+-------------------------------
+    1 | fabiodev@example.com  | $2a$10$L6EfCE8BC2Ub30fVBh4/S.qQmIt8CwcHvGUcEeyWAErbMysPLdHIK | $2a$10$L6EfCE8BC2Ub30fVBh4/S.
+    2 | fabiodev1@example.com | $2a$10$8/ulU4P/axyZNT8D3.XQbeuhWpC1VRRwNvNNs0u7za2Ed4fPhxTz6 | $2a$10$8/ulU4P/axyZNT8D3.XQbe
+    3 | fabiodev3@example.com | $2a$10$Uxxt6KwFl5aJSdC0XvTxXeNp3keD3JjR55Vt/3.bLSFrNNHZoLEqa | $2a$10$Uxxt6KwFl5aJSdC0XvTxXe
+  (3 rows)
+```
 
+# Job Spec / Assignment
+Implement the following features:
 
-# Public
-
-The public folder contains the static html files that are served.
-
-## index.html
-
-This is the main page of the app.
-
-The user is redirected to this page when logging out.
-
-If the user visits this page and is logged in, they will be redirected to loggedin.html
-
-## signup.html
-
-This form posts data to the /auth/signup route.
-
-If a user with the given email already exists, they will be redirected to login.html
-
-## login.html
-
-This form posts data to the /auth/login route.
-
-If the login is successful the user will be redirected to loggedin.html
-
-## loggedin.html
-
-This page is shown after a user logs in.
-
-The page will redirect to index.html if the user is NOT logged in.
+0. We need `regular` users and `admin` users.
+  - Update the `knex > db/migration` to include a column called `admin`, which is a boolean and defaults to `false`.
+  - The `signup` view needs to have an radio input for selecting if the user signing up is an admin or not, it should default to `false`.
+1. Only logged in users of type `admin` are allowed to list all users. [Route `/users`]
+2. A logged in `regular` user can only request their own user id. [Route `/users/:id`]
+  - If they try to request another user's id, they should be informed they are not an `admin`.
+3. An `admin` user can delete a user [Route `/users/:id`]
+  - Create a `delete` route for `admin`.
+  - `admin` view in `loggedin`: For admins only, the `loggedin` view will list all users in the `users` table in the view. Each row should have a delete button for removing that specific user.
+  - An `admin` can only delete `regular` users. An `admin` cannot delete another `admin`.
+4. Create a `knex` migration to seed your database with 100 random users of type `admin` and `regular`.

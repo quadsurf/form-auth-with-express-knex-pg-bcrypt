@@ -4,9 +4,7 @@ const router = express.Router();
 const knex = require('../db/knex');
 const bcrypt = require('bcrypt');
 const flash = require('flash');
-const Users = function() {
-    return knex('users');
-};
+const Users = function() { return knex('users') };
 
 // authorizedUser route
 function authorizedUser(req, res, next) {
@@ -15,9 +13,19 @@ function authorizedUser(req, res, next) {
       next();
   } else {
     req.flash('error', 'You are not authorized.');
-    res.status(401).redirect('/');
+    res.redirect(401, '/');
   }
 }
+
+router.get('/', authorizedUser, function(req, res, next){
+  Users().then(function(users){
+    if (users) {
+      res.json(users);
+    } else {
+      res.status(401).json({ message: 'User does not exist.' });
+    }
+  });
+});
 
 router.get('/login', function(req, res, next){
   res.render('login');
