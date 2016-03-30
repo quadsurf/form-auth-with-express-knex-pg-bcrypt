@@ -22,7 +22,8 @@ router.get('/', authorizedUser, function(req, res, next){
     if (users) {
       res.json(users);
     } else {
-      res.status(401).json({ message: 'User does not exist.' });
+      res.status(200)
+         .json({ message: 'User does not exist.' });
     }
   });
 });

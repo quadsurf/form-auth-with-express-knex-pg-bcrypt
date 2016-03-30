@@ -10,13 +10,11 @@ router.post('/signup', function(req, res, next) {
     Users().where({
         email: req.body.email
     }).first().then(function(user) {
-        let salt = bcrypt.genSaltSync(10);
         if (!user) {
-            let hash = bcrypt.hashSync(req.body.password, salt);
+            let hash = bcrypt.hashSync(req.body.password, 10);
             Users().insert({
                 email: req.body.email,
-                password: hash,
-                salt: salt
+                password: hash
             }).then(function(){
               req.flash('info', 'Thanks for signing up.');
               res.redirect('/');
@@ -32,8 +30,7 @@ router.post('/login', function(req, res, next) {
     Users().where({
         email: req.body.email,
     }).first().then(function(user) {
-        let hashed_pw = bcrypt.hashSync(req.body.password, user.salt);
-        if (user && bcrypt.compareSync(req.body.password, hashed_pw)) {
+        if ( user && bcrypt.compareSync(req.body.password, user.password) ) {
             res.cookie('userID', user.id, {
                 signed: true
             });
