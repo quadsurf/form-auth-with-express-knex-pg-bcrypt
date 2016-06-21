@@ -6,9 +6,28 @@ const bcrypt = require('bcrypt');
 const flash = require('flash');
 const Users = function() { return knex('users') };
 
-// authorizedUser route
+// AUTHORIZED MIDDLEWARE
+function authorizedAdmin(req, res, next) {
+  // req.session['is_admin'] = req.signedCookies.userAdmin;
+  let user_id = req.signedCookies.userID;
+  let user_admin = req.signedCookies.userAdmin;
+  console.log(user_id);
+  console.log(user_admin);
+
+  if (user_id && user_admin === 'true') {
+      next();
+  } else {
+    req.flash('error', 'You are not authorized to view all users.');
+    res.redirect(401, '/');
+  }
+}
+
 function authorizedUser(req, res, next) {
   let user_id = req.signedCookies.userID;
+  let user_admin = req.signedCookies.userAdmin;
+  console.log(user_id);
+  console.log(user_admin);
+
   if (user_id) {
       next();
   } else {
@@ -17,7 +36,7 @@ function authorizedUser(req, res, next) {
   }
 }
 
-router.get('/', authorizedUser, function(req, res, next){
+router.get('/', authorizedAdmin, function(req, res, next){
   Users().then(function(users){
     if (users) {
       res.json(users);

@@ -12,11 +12,15 @@ router.post('/signup', function(req, res, next) {
     }).first().then(function(user) {
         if (!user) {
             let hash = bcrypt.hashSync(req.body.password, 10);
-            Users().insert({
+            Users()
+            .insert({
                 email: req.body.email,
-                password: hash
-            }).then(function(){
+                password: hash,
+                admin: req.body.admin
+            })
+            .then(function(user){
               req.flash('info', 'Thanks for signing up.');
+              console.log(user);
               res.redirect('/');
             });
         } else {
@@ -28,10 +32,17 @@ router.post('/signup', function(req, res, next) {
 
 router.post('/login', function(req, res, next) {
     Users().where({
-        email: req.body.email,
+        email: req.body.email
     }).first().then(function(user) {
+        // console.log('Logged In User: ');
+        // console.log(user);
+        var id = user.id;
+        var admin = user.admin;
         if ( user && bcrypt.compareSync(req.body.password, user.password) ) {
-            res.cookie('userID', user.id, {
+            res.cookie('userID', id, {
+                signed: true
+            });
+            res.cookie('userAdmin', admin, {
                 signed: true
             });
             req.flash('info', 'Welcome back!');

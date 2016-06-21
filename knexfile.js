@@ -2,6 +2,6 @@
 module.exports = {
   development: {
     client: 'pg',
-    connection: 'postgres://localhost/galvanize-form-auth-with-express-knex-pg-bcrypt'
+    connection: 'postgres://localhost/bcryptv1'
   }
 };

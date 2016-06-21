@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const knex = require('./db/knex');
 const session = require('express-session');
 const Users = function() { return knex('users') };
+const hbs = require('express-handlebars');
 
 // routes
 const auth = require('./routes/auth');
@@ -17,12 +18,13 @@ const users = require('./routes/users');
 const app = express();
 require('dotenv').load();
 app.set('view engine', 'hbs');
+// app.engine('hbs',hbs({extname: 'hbs', defaultLayout: 'layout', layoutsDir: __dirname + 'views'}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-// app.use(cookieParser(process.env.SECRET));
+app.use(cookieParser(process.env.SECRET));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // flash message middleware
